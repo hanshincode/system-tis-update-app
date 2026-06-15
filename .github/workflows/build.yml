@@ -1,0 +1,87 @@
+name: Build iOS App (.ipa)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - dev
+      - developer
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: 'Backend API URL (UAT/Production)'
+        required: true
+        default: 'https://store-uat.tisbroker.com/api'
+
+jobs:
+  build:
+    name: Build Unsigned IPA for SideStore
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine working directory
+        run: |
+          if [ -d "App-IOS" ]; then
+            echo "WORKING_DIR=App-IOS" >> $GITHUB_ENV
+            echo "Project path is subfolder: App-IOS"
+          else
+            echo "WORKING_DIR=." >> $GITHUB_ENV
+            echo "Project path is root directory"
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install iOS Wrapper Dependencies
+        run: |
+          npm install
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Sync Web Assets to iOS
+        env:
+          VITE_API_URL: ${{ github.event.inputs.api_url || 'https://store-uat.tisbroker.com/api' }}
+        run: |
+          npm run build-all
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Setup CocoaPods
+        run: |
+          cd ios/App
+          pod install
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Build Xcode Archive (Unsigned)
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace \
+                     -scheme App \
+                     -configuration Release \
+                     -sdk iphoneos \
+                     clean archive \
+                     -archivePath build/App.xcarchive \
+                     CODE_SIGNING_ALLOWED=NO \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGN_IDENTITY=""
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Package Unsigned IPA for SideStore/AltStore
+        run: |
+          mkdir -p build/Payload
+          cp -r build/App.xcarchive/Products/Applications/App.app build/Payload/
+          cd build
+          zip -r App.ipa Payload
+          echo "Unsigned IPA packaged successfully at build/App.ipa"
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TIS-Broker-Unsigned-IPA
+          path: ${{ env.WORKING_DIR }}/build/App.ipa
+          if-no-files-found: error

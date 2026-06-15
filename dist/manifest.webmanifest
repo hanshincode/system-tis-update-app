@@ -1,0 +1,28 @@
+{
+  "name": "TIS Insurance Broker",
+  "short_name": "TIS Broker",
+  "description": "TIS Insurance Broker tư vấn, so sánh và hỗ trợ mua bảo hiểm cho cá nhân, gia đình và doanh nghiệp.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#D71920",
+  "lang": "vi-VN",
+  "dir": "ltr",
+  "categories": ["business", "finance"],
+  "icons": [
+    {
+      "src": "images/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
