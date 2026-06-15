@@ -1,0 +1,6 @@
+# Loại bỏ node_modules và thư mục build
+node_modules/
+build/
+
+# Không loại bỏ thư mục dist vì đây là nơi chứa web assets đã biên dịch cần đẩy lên Git để build
+!dist/
