@@ -1,0 +1,1 @@
+import{t as e}from"./vendor-DEEUWvne.js";import{x as t}from"./index-DBWqxpZ5.js";var n=e();function r({html:e,className:r=``,...i}){let a=t(e);return(0,n.jsx)(`div`,{className:`safe-html-content ${r}`,dangerouslySetInnerHTML:{__html:a},...i})}export{r as t};
